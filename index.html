@@ -356,7 +356,9 @@
 
   .required-note{ font-size:12.5px; color:var(--muted); margin-top:2px;}
 
-  #pdf-content{ display:none; }
+  #pdf-content{ display:none; width:190mm; }
+
+  @page{ size:A4; margin:10mm; }
 
   @media print{
     body *{ visibility:hidden; }
@@ -365,7 +367,9 @@
       display:block !important;
       position:absolute;
       left:0; top:0;
-      width:100%;
+      width:190mm;
+      transform-origin:top left;
+      overflow:visible;
     }
     .action-bar, .topbar{ display:none !important; }
   }
@@ -973,6 +977,17 @@ document.getElementById('pdfBtn').addEventListener('click', ()=>{
 
   const pdfContent = document.getElementById('pdf-content');
   pdfContent.style.display = 'block';
+  pdfContent.style.transform = 'none';
+  pdfContent.style.height = 'auto';
+
+  // Force a layout flush, then scale the whole block down (if needed)
+  // so everything fits on a single A4 page regardless of how many
+  // products were selected.
+  const A4_USABLE_HEIGHT_PX = 96 * (277 / 25.4); // 297mm page - 2x10mm margins, at CSS's fixed 96px/in
+  const naturalHeight = pdfContent.scrollHeight;
+  const scale = naturalHeight > A4_USABLE_HEIGHT_PX ? (A4_USABLE_HEIGHT_PX / naturalHeight) : 1;
+  pdfContent.style.transform = `scale(${scale})`;
+  pdfContent.style.height = (naturalHeight * scale) + 'px';
 
   window.print();
 });
