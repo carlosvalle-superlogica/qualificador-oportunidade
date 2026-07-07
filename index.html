@@ -5,21 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Qualificador de Oportunidade</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#1C2B39;
-    --ink-soft:#3A4A5A;
-    --paper:#F6F2EA;
+    --brand:#2F3EF6;
+    --brand-dark:#1D2AC4;
+    --brand-soft:#EAEBFE;
+    --ink:#232B3A;
+    --ink-soft:#4B5568;
+    --paper:#F4F6FA;
     --card:#FFFFFF;
-    --line:#E3DCCB;
-    --brick:#B24A2E;
-    --brick-soft:#F4E2DA;
-    --emerald:#1E7A5F;
-    --emerald-soft:#DCEBE3;
-    --gold:#C08A2E;
-    --gold-soft:#F3E4C4;
-    --muted:#7A7161;
+    --line:#E3E7EF;
+    --brick:#D6483F;
+    --brick-soft:#FBEAE8;
+    --emerald:#12946F;
+    --emerald-soft:#DFF3EC;
+    --gold:#DB9A2E;
+    --gold-soft:#FBF0D9;
+    --muted:#6B7280;
     --radius:14px;
   }
   *{box-sizing:border-box;}
@@ -32,49 +35,62 @@
     padding-bottom:120px;
   }
   h1,h2,h3{
-    font-family:'Fraunces',serif;
+    font-family:'Plus Jakarta Sans',sans-serif;
     margin:0;
     letter-spacing:-0.01em;
   }
   .mono{ font-family:'Roboto Mono',monospace; }
 
-  header.top{
-    background:var(--ink);
-    color:#F6F2EA;
-    padding:36px 24px 44px;
-    position:relative;
+  .topbar{
+    background:#FFFFFF;
+    border-bottom:1px solid var(--line);
+    padding:14px 24px;
+    position:sticky;
+    top:0;
+    z-index:40;
+  }
+  .topbar-inner{
+    max-width:920px;
+    margin:0 auto;
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .brand{ display:flex; align-items:center; gap:9px; flex-shrink:0; }
+  .brand-mark{ display:block; flex-shrink:0; }
+  .brand-name{
+    font-family:'Plus Jakarta Sans',sans-serif;
+    font-weight:700;
+    font-size:16.5px;
+    color:var(--ink);
+    letter-spacing:-0.01em;
+  }
+  .topbar-divider{
+    width:1px;
+    height:22px;
+    background:var(--line);
+    flex-shrink:0;
+  }
+  .page-title{ display:flex; flex-direction:column; line-height:1.25; min-width:0; }
+  .page-title-main{
+    font-family:'Plus Jakarta Sans',sans-serif;
+    font-weight:600;
+    font-size:14.5px;
+    color:var(--ink);
+    white-space:nowrap;
     overflow:hidden;
+    text-overflow:ellipsis;
   }
-  header.top::after{
-    content:"";
-    position:absolute;
-    right:-60px; top:-60px;
-    width:220px; height:220px;
-    border-radius:50%;
-    border:1px solid rgba(246,242,234,0.15);
+  .page-title-sub{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:1px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
   }
-  header.top::before{
-    content:"";
-    position:absolute;
-    right:20px; top:40px;
-    width:120px; height:120px;
-    border-radius:50%;
-    border:1px solid rgba(246,242,234,0.12);
-  }
-  .top-inner{ max-width:920px; margin:0 auto; position:relative; z-index:1; }
-  .eyebrow{
-    font-family:'Roboto Mono',monospace;
-    font-size:11px;
-    letter-spacing:0.14em;
-    text-transform:uppercase;
-    color:var(--gold-soft);
-    opacity:0.9;
-    margin-bottom:10px;
-  }
-  header.top h1{ font-size:34px; font-weight:600; color:#FBF8F2; }
-  header.top p.sub{ margin:10px 0 0; color:#C9D2D8; max-width:560px; font-size:15px; }
 
-  .wrap{ max-width:920px; margin:-24px auto 0; padding:0 24px; }
+  .wrap{ max-width:920px; margin:28px auto 0; padding:0 24px; }
 
   .card{
     background:var(--card);
@@ -112,12 +128,12 @@
     font-family:'Inter',sans-serif;
     font-size:14.5px;
     color:var(--ink);
-    background:#FDFCFA;
+    background:#FAFBFD;
     transition:border-color .15s;
   }
   input[type=text]:focus, input[type=number]:focus, select:focus{
     outline:none;
-    border-color:var(--ink-soft);
+    border-color:var(--brand);
   }
 
   .field-row{ margin-bottom:16px; }
@@ -139,12 +155,12 @@
     display:flex;
     align-items:center;
     gap:10px;
-    background:#FDFCFA;
+    background:#FAFBFD;
     transition:border-color .15s, background .15s;
   }
-  .interest-chip:hover{ border-color:#c9c0aa; }
-  .interest-chip input{ accent-color:var(--ink); width:16px; height:16px; flex-shrink:0; }
-  .interest-chip.checked{ border-color:var(--ink); background:#F1ECE0; }
+  .interest-chip:hover{ border-color:#C3C9D6; }
+  .interest-chip input{ accent-color:var(--brand); width:16px; height:16px; flex-shrink:0; }
+  .interest-chip.checked{ border-color:var(--brand); background:var(--brand-soft); }
   .interest-chip .name{ font-size:14px; font-weight:600; }
   .interest-chip .tag{
     font-size:10.5px;
@@ -169,7 +185,7 @@
     align-items:center;
     padding:18px 24px;
     border-bottom:1px solid var(--line);
-    background:#FBF8F2;
+    background:#F7F8FB;
   }
   .product-head h3{ font-size:18px; font-weight:600; }
   .product-body{ padding:22px 24px; }
@@ -212,7 +228,7 @@
   .pill-group{ display:flex; gap:6px; flex-shrink:0; }
   .pill{
     border:1px solid var(--line);
-    background:#FDFCFA;
+    background:#FAFBFD;
     padding:8px 14px;
     border-radius:20px;
     font-size:13px;
@@ -222,7 +238,7 @@
     transition:all .15s;
     white-space:nowrap;
   }
-  .pill:hover{ border-color:#c9c0aa; }
+  .pill:hover{ border-color:#C3C9D6; }
   .pill.active-nao{ background:var(--brick); border-color:var(--brick); color:#fff; }
   .pill.active-parcial{ background:var(--gold); border-color:var(--gold); color:#fff; }
   .pill.active-sim{ background:var(--emerald); border-color:var(--emerald); color:#fff; }
@@ -232,7 +248,7 @@
   .budget-box{
     margin-top:18px;
     padding:16px 18px;
-    background:#FBF8F2;
+    background:#F7F8FB;
     border:1px solid var(--line);
     border-radius:10px;
   }
@@ -270,7 +286,7 @@
   }
   .status-badge.sim{ background:var(--emerald-soft); color:var(--emerald); }
   .status-badge.nao{ background:var(--brick-soft); color:var(--brick); }
-  .status-badge.pending{ background:#EDE8DB; color:var(--muted); }
+  .status-badge.pending{ background:#E9EBF1; color:var(--muted); }
 
   /* results section */
   #results-section{ display:none; }
@@ -287,7 +303,7 @@
     margin-bottom:10px;
   }
   .verdict-card .verdict-value{
-    font-family:'Fraunces',serif;
+    font-family:'Plus Jakarta Sans',sans-serif;
     font-size:44px;
     font-weight:700;
   }
@@ -334,9 +350,9 @@
     transition:transform .1s, opacity .15s;
   }
   .btn:active{ transform:scale(0.98); }
-  .btn-primary{ background:var(--ink); color:#FBF8F2; }
+  .btn-primary{ background:var(--brand); color:#FFFFFF; }
   .btn-primary:disabled{ opacity:0.4; cursor:not-allowed; }
-  .btn-primary:not(:disabled):hover{ background:#0f1c27; }
+  .btn-primary:not(:disabled):hover{ background:var(--brand-dark); }
 
   .required-note{ font-size:12.5px; color:var(--muted); margin-top:2px;}
 
@@ -351,7 +367,7 @@
       left:0; top:0;
       width:100%;
     }
-    .action-bar, header.top{ display:none !important; }
+    .action-bar, .topbar{ display:none !important; }
   }
 
   @media (max-width:640px){
@@ -364,11 +380,20 @@
 </head>
 <body>
 
-<header class="top">
-  <div class="top-inner">
-    <div class="eyebrow">Calculadora de critérios · Reunião comercial</div>
-    <h1>Qualificador de Oportunidade</h1>
-    <p class="sub">Preencha os critérios da reunião para calcular a nota e definir se é Oportunidade Sim ou Não. Gere o PDF ao final para colar no Negócio do HubSpot.</p>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <svg class="brand-mark" width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="13" height="13" rx="4.5" fill="#2F3EF6" opacity="0.45"/>
+        <rect x="11" y="11" width="13" height="13" rx="4.5" fill="#2F3EF6"/>
+      </svg>
+      <span class="brand-name">Superlógica</span>
+    </div>
+    <span class="topbar-divider"></span>
+    <div class="page-title">
+      <span class="page-title-main">Qualificador de Oportunidade</span>
+      <span class="page-title-sub">Critérios da reunião comercial · Calcule a nota e gere o PDF para o Negócio</span>
+    </div>
   </div>
 </header>
 
