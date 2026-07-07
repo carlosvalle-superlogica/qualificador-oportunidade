@@ -638,8 +638,8 @@ function buildProductCard(key, label, items, extraItems, hasBudget){
     row.className = 'criteria-item';
     row.innerHTML = `
       <div>
-        <div class="criteria-text">${item.text}</div>
-        <div class="weight-hint">Critério de eliminação (não entra na nota)</div>
+        <div class="criteria-text">${item.text} <span style="color:var(--brick);">*</span></div>
+        <div class="weight-hint">Obrigatório · critério de eliminação (não entra na nota)</div>
       </div>
       <div class="pill-group">
         <button type="button" class="pill" data-val="nao">Não</button>
@@ -662,7 +662,7 @@ function buildProductCard(key, label, items, extraItems, hasBudget){
     const box = document.createElement('div');
     box.className = 'budget-box';
     box.innerHTML = `
-      <label class="field-label">Orçamento (critério de eliminação por preço)</label>
+      <label class="field-label">Orçamento (critério obrigatório e eliminatório por preço) <span style="color:var(--brick);">*</span></label>
       <div class="two-col">
         <div>
           <label class="field-label" style="font-size:11px;">Valor que o cliente pode investir (R$)</label>
@@ -728,9 +728,19 @@ function checkExtra(key, extraItems){
   return motivos;
 }
 
+function isExtraComplete(key, extraItems){
+  const extra = state.extra[key] || {};
+  return extraItems.every(item => !!extra[item.id]);
+}
+
+function isBudgetFilled(key){
+  const b = state.budget[key];
+  return !!b && b.cliente !== null && b.minimo !== null && !isNaN(b.cliente) && !isNaN(b.minimo);
+}
+
 function checkBudget(key, label){
   const b = state.budget[key];
-  if(b && b.cliente !== null && b.minimo !== null && !isNaN(b.cliente) && !isNaN(b.minimo)){
+  if(isBudgetFilled(key)){
     if(b.cliente < b.minimo){
       return [`Perdido por preço: orçamento do cliente (R$ ${b.cliente.toFixed(2)}) menor que o valor mínimo do ${label} (R$ ${b.minimo.toFixed(2)})`];
     }
@@ -793,14 +803,29 @@ function recalc(){
     const budgetMotivos = checkBudget(key, def.budgetLabel);
     const allMotivos = motivos.concat(extraMotivos).concat(budgetMotivos);
 
-    let status = 'pending';
-    if(complete){
-      status = allMotivos.length > 0 ? 'nao' : 'sim';
-    } else if(extraMotivos.length > 0 || budgetMotivos.length > 0){
-      status = 'nao'; // eliminated even if weighted criteria incomplete
+    const extraComplete = isExtraComplete(key, def.extra);
+    const budgetFilled = isBudgetFilled(key);
+    const ready = complete && extraComplete && budgetFilled;
+
+    let status;
+    if(allMotivos.length > 0){
+      status = 'nao'; // a definitive elimination trigger fired, even if something else is still pending
+    } else if(ready){
+      status = 'sim';
+    } else {
+      status = 'pending';
     }
 
-    productResults.push({key, label:def.label, nota, complete, motivos: allMotivos, status});
+    let pendingReason = '';
+    if(status === 'pending'){
+      const missing = [];
+      if(!complete) missing.push('critérios da nota');
+      if(!extraComplete) missing.push('critério(s) eliminatório(s)');
+      if(!budgetFilled) missing.push('orçamento');
+      pendingReason = 'Aguardando: ' + missing.join(', ');
+    }
+
+    productResults.push({key, label:def.label, nota, ready, motivos: allMotivos, status, pendingReason});
   });
 
   renderResults(globalMotivos, productResults, hasBase, crossSellSelected, prazoAnswered);
@@ -822,7 +847,7 @@ function renderResults(globalMotivos, productResults, hasBase, crossSellSelected
 
   resultsSection.style.display = 'block';
 
-  const productsComplete = productResults.length > 0 && productResults.every(p => p.complete || p.status === 'nao');
+  const productsComplete = productResults.length > 0 && productResults.every(p => p.ready || p.status === 'nao');
   const allComplete = productsComplete && prazoAnswered;
   const anyNao = globalMotivos.length > 0 || productResults.some(p => p.status === 'nao');
   const overallSim = allComplete && !anyNao && productResults.length > 0;
@@ -849,6 +874,7 @@ function renderResults(globalMotivos, productResults, hasBase, crossSellSelected
         <div>
           <div class="rr-name">${p.label}</div>
           ${p.nota !== null ? `<div class="rr-nota">Nota final: ${p.nota.toFixed(2).replace('.', ',')}</div>` : `<div class="rr-nota">Aguardando respostas dos critérios</div>`}
+          ${p.status === 'pending' && p.pendingReason ? `<div class="rr-motivos">${p.pendingReason}</div>` : ''}
           ${p.motivos.length > 0 ? `<div class="rr-motivos">${p.motivos.join(' · ')}</div>` : ''}
         </div>
         <div class="rr-right">
