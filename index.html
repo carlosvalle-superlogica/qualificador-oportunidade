@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qualificador de Oportunidade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1C2B39;
+    --ink-soft:#3A4A5A;
+    --paper:#F6F2EA;
+    --card:#FFFFFF;
+    --line:#E3DCCB;
+    --brick:#B24A2E;
+    --brick-soft:#F4E2DA;
+    --emerald:#1E7A5F;
+    --emerald-soft:#DCEBE3;
+    --gold:#C08A2E;
+    --gold-soft:#F3E4C4;
+    --muted:#7A7161;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    line-height:1.45;
+    padding-bottom:120px;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces',serif;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .mono{ font-family:'Roboto Mono',monospace; }
+
+  header.top{
+    background:var(--ink);
+    color:#F6F2EA;
+    padding:36px 24px 44px;
+    position:relative;
+    overflow:hidden;
+  }
+  header.top::after{
+    content:"";
+    position:absolute;
+    right:-60px; top:-60px;
+    width:220px; height:220px;
+    border-radius:50%;
+    border:1px solid rgba(246,242,234,0.15);
+  }
+  header.top::before{
+    content:"";
+    position:absolute;
+    right:20px; top:40px;
+    width:120px; height:120px;
+    border-radius:50%;
+    border:1px solid rgba(246,242,234,0.12);
+  }
+  .top-inner{ max-width:920px; margin:0 auto; position:relative; z-index:1; }
+  .eyebrow{
+    font-family:'Roboto Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--gold-soft);
+    opacity:0.9;
+    margin-bottom:10px;
+  }
+  header.top h1{ font-size:34px; font-weight:600; color:#FBF8F2; }
+  header.top p.sub{ margin:10px 0 0; color:#C9D2D8; max-width:560px; font-size:15px; }
+
+  .wrap{ max-width:920px; margin:-24px auto 0; padding:0 24px; }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:24px 26px;
+    margin-bottom:20px;
+    box-shadow:0 1px 2px rgba(28,43,57,0.04);
+  }
+  .card h2{
+    font-size:19px;
+    font-weight:600;
+    margin-bottom:4px;
+  }
+  .card .card-sub{
+    font-size:13px;
+    color:var(--muted);
+    margin-bottom:18px;
+  }
+
+  label.field-label{
+    display:block;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+  }
+  input[type=text], input[type=number], select{
+    width:100%;
+    padding:11px 13px;
+    border:1px solid var(--line);
+    border-radius:9px;
+    font-family:'Inter',sans-serif;
+    font-size:14.5px;
+    color:var(--ink);
+    background:#FDFCFA;
+    transition:border-color .15s;
+  }
+  input[type=text]:focus, input[type=number]:focus, select:focus{
+    outline:none;
+    border-color:var(--ink-soft);
+  }
+
+  .field-row{ margin-bottom:16px; }
+  .field-row:last-child{ margin-bottom:0; }
+  .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+  /* interest checkboxes */
+  .interest-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(190px,1fr));
+    gap:10px;
+  }
+  .interest-chip{
+    position:relative;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:13px 14px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:#FDFCFA;
+    transition:border-color .15s, background .15s;
+  }
+  .interest-chip:hover{ border-color:#c9c0aa; }
+  .interest-chip input{ accent-color:var(--ink); width:16px; height:16px; flex-shrink:0; }
+  .interest-chip.checked{ border-color:var(--ink); background:#F1ECE0; }
+  .interest-chip .name{ font-size:14px; font-weight:600; }
+  .interest-chip .tag{
+    font-size:10.5px;
+    color:var(--muted);
+    display:block;
+    font-weight:400;
+    margin-top:1px;
+  }
+  .interest-chip.crosssell .tag::before{ content:"cross-sell · "; }
+
+  /* product card */
+  .product-card{
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:var(--card);
+    margin-bottom:20px;
+    overflow:hidden;
+  }
+  .product-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 24px;
+    border-bottom:1px solid var(--line);
+    background:#FBF8F2;
+  }
+  .product-head h3{ font-size:18px; font-weight:600; }
+  .product-body{ padding:22px 24px; }
+
+  .gauge-wrap{ display:flex; align-items:center; gap:14px; min-width:210px; }
+  .gauge-track{
+    position:relative;
+    width:150px; height:8px;
+    border-radius:5px;
+    background:linear-gradient(to right,
+      var(--brick) 0%, var(--brick) 49%, var(--emerald) 51%, var(--emerald) 100%);
+    opacity:0.35;
+  }
+  .gauge-fill-marker{
+    position:absolute; top:-4px;
+    width:3px; height:16px;
+    background:var(--ink);
+    border-radius:2px;
+    transform:translateX(-50%);
+    transition:left .25s ease;
+  }
+  .gauge-threshold{
+    position:absolute; top:-2px; left:50%;
+    width:1px; height:12px;
+    background:rgba(28,43,57,0.35);
+  }
+  .gauge-value{ font-family:'Roboto Mono',monospace; font-size:20px; font-weight:500; min-width:52px; text-align:right; }
+  .gauge-value.pending{ color:var(--muted); font-size:14px; }
+
+  .criteria-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    padding:13px 0;
+    border-bottom:1px dashed var(--line);
+  }
+  .criteria-item:last-of-type{ border-bottom:none; }
+  .criteria-text{ font-size:14.5px; color:var(--ink); max-width:56%; }
+  .pill-group{ display:flex; gap:6px; flex-shrink:0; }
+  .pill{
+    border:1px solid var(--line);
+    background:#FDFCFA;
+    padding:8px 14px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    color:var(--muted);
+    transition:all .15s;
+    white-space:nowrap;
+  }
+  .pill:hover{ border-color:#c9c0aa; }
+  .pill.active-nao{ background:var(--brick); border-color:var(--brick); color:#fff; }
+  .pill.active-parcial{ background:var(--gold); border-color:var(--gold); color:#fff; }
+  .pill.active-sim{ background:var(--emerald); border-color:var(--emerald); color:#fff; }
+
+  .weight-hint{ font-family:'Roboto Mono',monospace; font-size:11px; color:var(--muted); margin-top:2px; }
+
+  .budget-box{
+    margin-top:18px;
+    padding:16px 18px;
+    background:#FBF8F2;
+    border:1px solid var(--line);
+    border-radius:10px;
+  }
+  .budget-box .field-label{ margin-bottom:8px; }
+
+  .elim-note{
+    margin-top:16px;
+    padding:14px 16px;
+    background:var(--gold-soft);
+    border-left:3px solid var(--gold);
+    border-radius:0 8px 8px 0;
+    font-size:13.5px;
+  }
+
+  .cross-warning{
+    margin-top:6px;
+    padding:14px 18px;
+    background:var(--brick-soft);
+    border-left:3px solid var(--brick);
+    border-radius:0 8px 8px 0;
+    font-size:14px;
+    color:var(--ink);
+  }
+
+  .status-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 14px;
+    border-radius:20px;
+    font-size:12.5px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+  }
+  .status-badge.sim{ background:var(--emerald-soft); color:var(--emerald); }
+  .status-badge.nao{ background:var(--brick-soft); color:var(--brick); }
+  .status-badge.pending{ background:#EDE8DB; color:var(--muted); }
+
+  /* results section */
+  #results-section{ display:none; }
+  .verdict-card{
+    text-align:center;
+    padding:34px 24px;
+  }
+  .verdict-card .verdict-label{
+    font-family:'Roboto Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:10px;
+  }
+  .verdict-card .verdict-value{
+    font-family:'Fraunces',serif;
+    font-size:44px;
+    font-weight:700;
+  }
+  .verdict-value.sim{ color:var(--emerald); }
+  .verdict-value.nao{ color:var(--brick); }
+
+  .result-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    padding:16px 0;
+    border-bottom:1px solid var(--line);
+    gap:16px;
+  }
+  .result-row:last-child{ border-bottom:none; }
+  .result-row .rr-name{ font-weight:600; font-size:15px; }
+  .result-row .rr-motivos{ font-size:13px; color:var(--muted); margin-top:6px; max-width:480px; }
+  .result-row .rr-nota{ font-family:'Roboto Mono',monospace; font-size:13px; color:var(--ink-soft); margin-top:4px; }
+  .result-row .rr-right{ text-align:right; flex-shrink:0; }
+
+  /* bottom action bar */
+  .action-bar{
+    position:fixed;
+    bottom:0; left:0; right:0;
+    background:#FFFFFF;
+    border-top:1px solid var(--line);
+    padding:14px 24px;
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    z-index:50;
+    box-shadow:0 -4px 16px rgba(28,43,57,0.06);
+  }
+  .action-bar-inner{ max-width:920px; width:100%; display:flex; justify-content:space-between; align-items:center; gap:16px; }
+  .overall-preview{ display:flex; align-items:center; gap:10px; font-size:14px; color:var(--ink-soft); }
+  .btn{
+    border:none;
+    padding:13px 22px;
+    border-radius:9px;
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    transition:transform .1s, opacity .15s;
+  }
+  .btn:active{ transform:scale(0.98); }
+  .btn-primary{ background:var(--ink); color:#FBF8F2; }
+  .btn-primary:disabled{ opacity:0.4; cursor:not-allowed; }
+  .btn-primary:not(:disabled):hover{ background:#0f1c27; }
+
+  .required-note{ font-size:12.5px; color:var(--muted); margin-top:2px;}
+
+  #pdf-content{ display:none; }
+
+  @media print{
+    body *{ visibility:hidden; }
+    #pdf-content, #pdf-content *{ visibility:visible; }
+    #pdf-content{
+      display:block !important;
+      position:absolute;
+      left:0; top:0;
+      width:100%;
+    }
+    .action-bar, header.top{ display:none !important; }
+  }
+
+  @media (max-width:640px){
+    .two-col{ grid-template-columns:1fr; }
+    .criteria-item{ flex-direction:column; align-items:flex-start; gap:10px; }
+    .criteria-text{ max-width:100%; }
+    .action-bar-inner{ flex-direction:column; gap:10px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="eyebrow">Calculadora de critérios · Reunião comercial</div>
+    <h1>Qualificador de Oportunidade</h1>
+    <p class="sub">Preencha os critérios da reunião para calcular a nota e definir se é Oportunidade Sim ou Não. Gere o PDF ao final para colar no Negócio do HubSpot.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="card">
+    <h2>Negócio</h2>
+    <div class="card-sub">Informações gerais do lead / negócio</div>
+    <div class="field-row">
+      <label class="field-label" for="hubspotLink">Link do Negócio no HubSpot</label>
+      <input type="text" id="hubspotLink" placeholder="https://app.hubspot.com/contacts/.../deal/...">
+    </div>
+    <div class="field-row">
+      <label class="field-label" for="prazoContratacao">Prazo de contratação pretendido pelo cliente</label>
+      <select id="prazoContratacao">
+        <option value="">Selecione...</option>
+        <option value="ate60">Até 60 dias</option>
+        <option value="apos60">Após 60 dias</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Interesse do lead</h2>
+    <div class="card-sub">Selecione todos os produtos que o lead demonstrou interesse na reunião</div>
+    <div class="interest-grid" id="interestGrid"></div>
+  </div>
+
+  <div id="dynamicProducts"></div>
+
+  <div class="card" id="results-section">
+    <h2 style="margin-bottom:18px;">Resultado</h2>
+    <div id="resultsBody"></div>
+  </div>
+
+</div>
+
+<div class="action-bar">
+  <div class="action-bar-inner">
+    <div class="overall-preview" id="overallPreview">Preencha os critérios para calcular a nota</div>
+    <button class="btn btn-primary" id="pdfBtn" disabled>Gerar PDF para o Closer (imprimir/salvar como PDF)</button>
+  </div>
+</div>
+
+<!-- Hidden printable content for PDF -->
+<div id="pdf-content">
+  <div style="font-family:Arial,sans-serif; color:#1C2B39; padding:10px 4px;">
+    <h1 style="font-size:22px; margin-bottom:2px;">Qualificação de Oportunidade</h1>
+    <div id="pdfDate" style="font-size:12px; color:#7A7161; margin-bottom:18px;"></div>
+    <div style="font-size:13px; margin-bottom:14px;"><strong>Link do Negócio:</strong> <span id="pdfLink"></span></div>
+    <div style="font-size:13px; margin-bottom:18px;"><strong>Prazo de contratação:</strong> <span id="pdfPrazo"></span></div>
+    <div style="border:2px solid #1C2B39; border-radius:8px; padding:16px; text-align:center; margin-bottom:22px;">
+      <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#7A7161;">Veredito Geral</div>
+      <div id="pdfVerdict" style="font-size:28px; font-weight:bold; margin-top:4px;"></div>
+    </div>
+    <div id="pdfProductsList"></div>
+  </div>
+</div>
+
+<script>
+// ---------- CRITERIA DEFINITIONS ----------
+const CRM_ITEMS = [
+  {id:'preenchidas', text:'Todas as informações foram preenchidas?', w:{nao:-0.5,parcial:-0.25,sim:0}},
+  {id:'corretas', text:'As informações preenchidas estão corretas?', w:{nao:-0.5,parcial:-0.25,sim:0}},
+  {id:'produtoInteresse', text:'Produto de interesse condiz com a reunião?', w:{nao:-0.5,parcial:-0.25,sim:0}},
+  {id:'creci', text:'Possui Creci definitivo?', w:{nao:-2.5,parcial:-1.25,sim:0}, eliminatesOn:'nao', motivo:'Sem CRECI definitivo (obrigatório para CRM)'},
+  {id:'decisor', text:'Responsáveis pela tomada de decisão participaram?', w:{nao:-1,parcial:-0.5,sim:0}},
+];
+const CRM_EXTRA = [
+  {id:'zeroImoveis', text:'Lead com 0 imóveis?', eliminatesOn:'sim', motivo:'Lead com 0 imóveis'}
+];
+
+const ERP_ITEMS = [
+  {id:'preenchidas', text:'Todas as informações foram preenchidas?', w:{nao:-1,parcial:-0.5,sim:0}},
+  {id:'corretas', text:'As informações preenchidas estão corretas?', w:{nao:-0.5,parcial:-0.25,sim:0}},
+  {id:'produtoInteresse', text:'Produto de interesse condiz com a reunião?', w:{nao:-1,parcial:-0.5,sim:0}},
+  {id:'decisor', text:'Responsáveis pela tomada de decisão participaram?', w:{nao:-1,parcial:-0.5,sim:0}},
+  {id:'zeroContratos', text:'0 contratos de locação?', w:{nao:0,parcial:-0.75,sim:-1.5}, eliminatesOn:'sim', motivo:'Lead com 0 contratos de locação'},
+];
+
+function assistenteDigitalItems(){
+  return [
+    {id:'preenchidasCorretas', text:'Todas as informações foram preenchidas e estão corretas?', w:{nao:-0.5,parcial:-0.25,sim:0}},
+    {id:'produtoInteresse', text:'Produto de interesse condiz com a reunião?', w:{nao:-0.5,parcial:-0.25,sim:0}},
+    {id:'cnpj', text:'Tem CNPJ?', w:{nao:-2.5,parcial:-1.25,sim:0}},
+    {id:'site', text:'Tem Site?', w:{nao:-1,parcial:-0.5,sim:0}},
+    {id:'decisor', text:'Responsáveis pela tomada de decisão participaram?', w:{nao:-0.5,parcial:-0.25,sim:0}},
+  ];
+}
+
+// Interest options shown to the user
+const INTEREST_OPTIONS = [
+  {id:'crm', name:'CRM', crossSell:false},
+  {id:'erp', name:'ERP', crossSell:false},
+  {id:'assistenteDigital', name:'Assistente Digital', crossSell:true},
+  {id:'owli', name:'Owli', crossSell:true},
+  {id:'owliVistoria', name:'Owli Vistoria', crossSell:true},
+  {id:'hub', name:'HUB', crossSell:true},
+  {id:'seguroIncendio', name:'Seguro Incêndio', crossSell:true},
+];
+
+// ---------- STATE ----------
+// state.answers[productKey][itemId] = 'nao'|'parcial'|'sim'
+// state.extra[productKey][itemId] = 'sim'|'nao'
+// state.budget[productKey] = {cliente:number, minimo:number}
+const state = {
+  interests: {},
+  answers: {},
+  extra: {},
+  budget: {},
+};
+
+// ---------- RENDER: interest grid ----------
+const interestGrid = document.getElementById('interestGrid');
+INTEREST_OPTIONS.forEach(opt=>{
+  const chip = document.createElement('label');
+  chip.className = 'interest-chip' + (opt.crossSell ? ' crosssell' : '');
+  chip.innerHTML = `
+    <input type="checkbox" data-id="${opt.id}">
+    <span>
+      <span class="name">${opt.name}</span>
+      ${opt.crossSell ? '<span class="tag">requer CRM ou ERP</span>' : ''}
+    </span>
+  `;
+  const input = chip.querySelector('input');
+  input.addEventListener('change', ()=>{
+    state.interests[opt.id] = input.checked;
+    chip.classList.toggle('checked', input.checked);
+    renderDynamicProducts();
+    recalc();
+  });
+  interestGrid.appendChild(chip);
+});
+
+document.getElementById('prazoContratacao').addEventListener('change', recalc);
+document.getElementById('hubspotLink').addEventListener('input', recalc);
+
+// ---------- RENDER: dynamic product cards ----------
+const dynamicProducts = document.getElementById('dynamicProducts');
+
+function renderDynamicProducts(){
+  dynamicProducts.innerHTML = '';
+
+  const hasBase = state.interests.crm || state.interests.erp;
+
+  if(state.interests.crm){
+    dynamicProducts.appendChild(buildProductCard('crm', 'CRM', CRM_ITEMS, CRM_EXTRA, true));
+  }
+  if(state.interests.erp){
+    dynamicProducts.appendChild(buildProductCard('erp', 'ERP', ERP_ITEMS, [], true));
+  }
+  if(state.interests.assistenteDigital){
+    if(state.interests.crm){
+      dynamicProducts.appendChild(buildProductCard('assistenteDigitalCrm', 'Assistente Digital (base CRM)', assistenteDigitalItems(), [], true));
+    }
+    if(state.interests.erp){
+      dynamicProducts.appendChild(buildProductCard('assistenteDigitalErp', 'Assistente Digital (base ERP)', assistenteDigitalItems(), [], true));
+    }
+    if(!hasBase){
+      dynamicProducts.appendChild(buildCrossSellWarningCard('Assistente Digital'));
+    }
+  }
+  ['owli','owliVistoria','hub','seguroIncendio'].forEach(key=>{
+    const names = {owli:'Owli', owliVistoria:'Owli Vistoria', hub:'HUB', seguroIncendio:'Seguro Incêndio'};
+    if(state.interests[key] && !hasBase){
+      dynamicProducts.appendChild(buildCrossSellWarningCard(names[key]));
+    }
+  });
+}
+
+function buildCrossSellWarningCard(name){
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.innerHTML = `
+    <h2 style="font-size:16px;">${name}</h2>
+    <div class="cross-warning">
+      <strong>${name}</strong> é um produto de cross-sell e não pode ser vendido sem o produto base (CRM ou ERP).
+      Essa venda deve ocorrer pelo VC, não pelo Closer comercial. Esse interesse, sozinho, torna a oportunidade <strong>NÃO</strong>.
+    </div>
+  `;
+  return div;
+}
+
+function buildProductCard(key, label, items, extraItems, hasBudget){
+  if(!state.answers[key]) state.answers[key] = {};
+  if(!state.extra[key]) state.extra[key] = {};
+  if(!state.budget[key]) state.budget[key] = {cliente:null, minimo:null};
+
+  const card = document.createElement('div');
+  card.className = 'product-card';
+
+  const head = document.createElement('div');
+  head.className = 'product-head';
+  head.innerHTML = `
+    <h3>${label}</h3>
+    <div class="gauge-wrap">
+      <div class="gauge-track">
+        <div class="gauge-threshold"></div>
+        <div class="gauge-fill-marker" id="marker-${key}" style="left:100%"></div>
+      </div>
+      <div class="gauge-value pending" id="gaugeVal-${key}">--</div>
+    </div>
+  `;
+  card.appendChild(head);
+
+  const body = document.createElement('div');
+  body.className = 'product-body';
+
+  items.forEach(item=>{
+    const row = document.createElement('div');
+    row.className = 'criteria-item';
+    row.innerHTML = `
+      <div>
+        <div class="criteria-text">${item.text}</div>
+        <div class="weight-hint">Não ${item.w.nao} · Parcialmente ${item.w.parcial} · Sim ${item.w.sim}</div>
+      </div>
+      <div class="pill-group">
+        <button type="button" class="pill" data-val="nao">Não</button>
+        <button type="button" class="pill" data-val="parcial">Parcialmente</button>
+        <button type="button" class="pill" data-val="sim">Sim</button>
+      </div>
+    `;
+    const pills = row.querySelectorAll('.pill');
+    pills.forEach(p=>{
+      p.addEventListener('click', ()=>{
+        state.answers[key][item.id] = p.dataset.val;
+        pills.forEach(x=>x.className='pill');
+        p.classList.add('pill','active-'+p.dataset.val);
+        recalc();
+      });
+    });
+    body.appendChild(row);
+  });
+
+  extraItems.forEach(item=>{
+    const row = document.createElement('div');
+    row.className = 'criteria-item';
+    row.innerHTML = `
+      <div>
+        <div class="criteria-text">${item.text}</div>
+        <div class="weight-hint">Critério de eliminação (não entra na nota)</div>
+      </div>
+      <div class="pill-group">
+        <button type="button" class="pill" data-val="nao">Não</button>
+        <button type="button" class="pill" data-val="sim">Sim</button>
+      </div>
+    `;
+    const pills = row.querySelectorAll('.pill');
+    pills.forEach(p=>{
+      p.addEventListener('click', ()=>{
+        state.extra[key][item.id] = p.dataset.val;
+        pills.forEach(x=>x.className='pill');
+        p.classList.add('pill','active-'+p.dataset.val);
+        recalc();
+      });
+    });
+    body.appendChild(row);
+  });
+
+  if(hasBudget){
+    const box = document.createElement('div');
+    box.className = 'budget-box';
+    box.innerHTML = `
+      <label class="field-label">Orçamento (critério de eliminação por preço)</label>
+      <div class="two-col">
+        <div>
+          <label class="field-label" style="font-size:11px;">Valor que o cliente pode investir (R$)</label>
+          <input type="number" min="0" step="0.01" id="cliente-${key}" placeholder="Ex: 350">
+        </div>
+        <div>
+          <label class="field-label" style="font-size:11px;">Valor mínimo do produto (R$)</label>
+          <input type="number" min="0" step="0.01" id="minimo-${key}" placeholder="Ex: 500">
+        </div>
+      </div>
+    `;
+    box.querySelector(`#cliente-${key}`).addEventListener('input', e=>{
+      state.budget[key].cliente = e.target.value === '' ? null : parseFloat(e.target.value);
+      recalc();
+    });
+    box.querySelector(`#minimo-${key}`).addEventListener('input', e=>{
+      state.budget[key].minimo = e.target.value === '' ? null : parseFloat(e.target.value);
+      recalc();
+    });
+    body.appendChild(box);
+  }
+
+  card.appendChild(body);
+  return card;
+}
+
+// ---------- SCORING ----------
+function computeProduct(key, items){
+  const answers = state.answers[key] || {};
+  const answeredCount = items.filter(it => answers[it.id]).length;
+  const complete = answeredCount === items.length;
+
+  let nota = null;
+  const motivos = [];
+
+  if(complete){
+    let sum = 0;
+    items.forEach(it=>{
+      const ans = answers[it.id];
+      sum += it.w[ans];
+      if(it.eliminatesOn && ans === it.eliminatesOn){
+        motivos.push(it.motivo);
+      }
+    });
+    nota = 5 + sum;
+    if(nota < 2.5){
+      motivos.push('Nota final abaixo de 2,5');
+    }
+  }
+
+  return {nota, complete, motivos};
+}
+
+function checkExtra(key, extraItems){
+  const extra = state.extra[key] || {};
+  const motivos = [];
+  extraItems.forEach(item=>{
+    const ans = extra[item.id];
+    if(ans && item.eliminatesOn && ans === item.eliminatesOn){
+      motivos.push(item.motivo);
+    }
+  });
+  return motivos;
+}
+
+function checkBudget(key, label){
+  const b = state.budget[key];
+  if(b && b.cliente !== null && b.minimo !== null && !isNaN(b.cliente) && !isNaN(b.minimo)){
+    if(b.cliente < b.minimo){
+      return [`Perdido por preço: orçamento do cliente (R$ ${b.cliente.toFixed(2)}) menor que o valor mínimo do ${label} (R$ ${b.minimo.toFixed(2)})`];
+    }
+  }
+  return [];
+}
+
+function updateGauge(key, nota){
+  const marker = document.getElementById('marker-'+key);
+  const val = document.getElementById('gaugeVal-'+key);
+  if(!marker || !val) return;
+  if(nota === null){
+    marker.style.left = '0%';
+    val.textContent = '--';
+    val.className = 'gauge-value pending';
+  } else {
+    const pct = Math.max(0, Math.min(100, (nota/5)*100));
+    marker.style.left = pct + '%';
+    val.textContent = nota.toFixed(2).replace('.', ',');
+    val.className = 'gauge-value';
+  }
+}
+
+const PRODUCT_DEFS = {
+  crm: {label:'CRM', items:CRM_ITEMS, extra:CRM_EXTRA, budgetLabel:'CRM'},
+  erp: {label:'ERP', items:ERP_ITEMS, extra:[], budgetLabel:'ERP'},
+  assistenteDigitalCrm: {label:'Assistente Digital (base CRM)', items:assistenteDigitalItems(), extra:[], budgetLabel:'Assistente Digital'},
+  assistenteDigitalErp: {label:'Assistente Digital (base ERP)', items:assistenteDigitalItems(), extra:[], budgetLabel:'Assistente Digital'},
+};
+
+function recalc(){
+  const hasBase = state.interests.crm || state.interests.erp;
+  const globalMotivos = [];
+
+  const prazo = document.getElementById('prazoContratacao').value;
+  if(prazo === 'apos60'){
+    globalMotivos.push('Período de contratação pretendido após 60 dias');
+  }
+
+  const crossSellSelected = ['assistenteDigital','owli','owliVistoria','hub','seguroIncendio']
+    .filter(k => state.interests[k]);
+  if(crossSellSelected.length > 0 && !hasBase){
+    globalMotivos.push('Interesse apenas em produto(s) de cross-sell sem CRM ou ERP como base');
+  }
+
+  const productResults = [];
+  ['crm','erp','assistenteDigitalCrm','assistenteDigitalErp'].forEach(key=>{
+    const active = (key==='crm' && state.interests.crm) ||
+                   (key==='erp' && state.interests.erp) ||
+                   (key==='assistenteDigitalCrm' && state.interests.assistenteDigital && state.interests.crm) ||
+                   (key==='assistenteDigitalErp' && state.interests.assistenteDigital && state.interests.erp);
+    if(!active) return;
+
+    const def = PRODUCT_DEFS[key];
+    const {nota, complete, motivos} = computeProduct(key, def.items);
+    updateGauge(key, nota);
+
+    const extraMotivos = checkExtra(key, def.extra);
+    const budgetMotivos = checkBudget(key, def.budgetLabel);
+    const allMotivos = motivos.concat(extraMotivos).concat(budgetMotivos);
+
+    let status = 'pending';
+    if(complete){
+      status = allMotivos.length > 0 ? 'nao' : 'sim';
+    } else if(extraMotivos.length > 0 || budgetMotivos.length > 0){
+      status = 'nao'; // eliminated even if weighted criteria incomplete
+    }
+
+    productResults.push({key, label:def.label, nota, complete, motivos: allMotivos, status});
+  });
+
+  renderResults(globalMotivos, productResults, hasBase, crossSellSelected);
+}
+
+function renderResults(globalMotivos, productResults, hasBase, crossSellSelected){
+  const resultsSection = document.getElementById('results-section');
+  const resultsBody = document.getElementById('resultsBody');
+  const overallPreview = document.getElementById('overallPreview');
+  const pdfBtn = document.getElementById('pdfBtn');
+
+  const anyInterestSelected = Object.values(state.interests).some(v=>v);
+  if(!anyInterestSelected){
+    resultsSection.style.display = 'none';
+    overallPreview.textContent = 'Selecione ao menos um produto de interesse para começar';
+    pdfBtn.disabled = true;
+    return;
+  }
+
+  resultsSection.style.display = 'block';
+
+  const allComplete = productResults.length > 0 && productResults.every(p => p.complete || p.status === 'nao');
+  const anyNao = globalMotivos.length > 0 || productResults.some(p => p.status === 'nao');
+  const overallSim = allComplete && !anyNao && productResults.length > 0;
+
+  let html = '';
+
+  if(globalMotivos.length > 0){
+    html += `<div class="elim-note" style="background:var(--brick-soft); border-left-color:var(--brick); margin-bottom:18px;">
+      <strong>Eliminação geral do negócio:</strong><br>${globalMotivos.join('<br>')}
+    </div>`;
+  }
+
+  productResults.forEach(p=>{
+    const badgeClass = p.status === 'pending' ? 'pending' : p.status;
+    const badgeText = p.status === 'pending' ? 'Incompleto' : (p.status === 'sim' ? 'Oportunidade Sim' : 'Oportunidade Não');
+    html += `
+      <div class="result-row">
+        <div>
+          <div class="rr-name">${p.label}</div>
+          ${p.nota !== null ? `<div class="rr-nota">Nota final: ${p.nota.toFixed(2).replace('.', ',')}</div>` : `<div class="rr-nota">Aguardando respostas dos critérios</div>`}
+          ${p.motivos.length > 0 ? `<div class="rr-motivos">${p.motivos.join(' · ')}</div>` : ''}
+        </div>
+        <div class="rr-right">
+          <span class="status-badge ${badgeClass}">${badgeText}</span>
+        </div>
+      </div>
+    `;
+  });
+
+  html += `
+    <div class="verdict-card">
+      <div class="verdict-label">Veredito Geral do Negócio</div>
+      <div class="verdict-value ${anyInterestSelected ? (overallSim ? 'sim' : 'nao') : ''}">
+        ${!allComplete && !anyNao ? 'Aguardando respostas...' : (overallSim ? 'Oportunidade Sim' : 'Oportunidade Não')}
+      </div>
+    </div>
+  `;
+
+  resultsBody.innerHTML = html;
+
+  if(!allComplete && !anyNao){
+    overallPreview.innerHTML = 'Preencha todos os critérios para calcular a nota final';
+    pdfBtn.disabled = true;
+  } else {
+    overallPreview.innerHTML = `Veredito: <strong style="color:${overallSim ? 'var(--emerald)' : 'var(--brick)'}">${overallSim ? 'Oportunidade Sim' : 'Oportunidade Não'}</strong>`;
+    pdfBtn.disabled = false;
+  }
+
+  window._lastResult = {globalMotivos, productResults, overallSim: overallSim, ready: allComplete || anyNao};
+}
+
+// ---------- PDF GENERATION ----------
+document.getElementById('pdfBtn').addEventListener('click', ()=>{
+  const result = window._lastResult;
+  if(!result) return;
+
+  const link = document.getElementById('hubspotLink').value || 'Não informado';
+  const prazoSel = document.getElementById('prazoContratacao');
+  const prazoText = prazoSel.options[prazoSel.selectedIndex] ? prazoSel.options[prazoSel.selectedIndex].text : 'Não informado';
+
+  document.getElementById('pdfDate').textContent = 'Gerado em ' + new Date().toLocaleString('pt-BR');
+  document.getElementById('pdfLink').textContent = link;
+  document.getElementById('pdfPrazo').textContent = prazoText;
+
+  const verdictEl = document.getElementById('pdfVerdict');
+  verdictEl.textContent = result.overallSim ? 'OPORTUNIDADE SIM' : 'OPORTUNIDADE NÃO';
+  verdictEl.style.color = result.overallSim ? '#1E7A5F' : '#B24A2E';
+
+  let listHtml = '';
+  if(result.globalMotivos.length > 0){
+    listHtml += `<div style="margin-bottom:16px; padding:10px 14px; background:#F4E2DA; border-left:3px solid #B24A2E; font-size:13px;">
+      <strong>Eliminação geral:</strong> ${result.globalMotivos.join('; ')}
+    </div>`;
+  }
+  result.productResults.forEach(p=>{
+    const color = p.status === 'sim' ? '#1E7A5F' : '#B24A2E';
+    listHtml += `
+      <div style="border:1px solid #E3DCCB; border-radius:8px; padding:14px 16px; margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong style="font-size:14px;">${p.label}</strong>
+          <span style="color:${color}; font-weight:bold; font-size:12px; text-transform:uppercase;">${p.status === 'sim' ? 'Oportunidade Sim' : 'Oportunidade Não'}</span>
+        </div>
+        <div style="font-size:12px; color:#7A7161; margin-top:6px;">Nota final: ${p.nota !== null ? p.nota.toFixed(2).replace('.', ',') : '—'}</div>
+        ${p.motivos.length > 0 ? `<div style="font-size:12px; margin-top:6px;">Motivo(s): ${p.motivos.join('; ')}</div>` : ''}
+      </div>
+    `;
+  });
+  document.getElementById('pdfProductsList').innerHTML = listHtml;
+
+  const pdfContent = document.getElementById('pdf-content');
+  pdfContent.style.display = 'block';
+
+  window.print();
+});
+
+window.addEventListener('afterprint', ()=>{
+  document.getElementById('pdf-content').style.display = 'none';
+});
+
+// initial render
+renderDynamicProducts();
+recalc();
+</script>
+
+</body>
+</html>
