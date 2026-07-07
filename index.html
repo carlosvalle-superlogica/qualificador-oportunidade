@@ -368,7 +368,6 @@
       position:absolute;
       left:0; top:0;
       width:190mm;
-      transform-origin:top left;
       overflow:visible;
     }
     .action-bar, .topbar{ display:none !important; }
@@ -411,12 +410,13 @@
       <input type="text" id="hubspotLink" placeholder="https://app.hubspot.com/contacts/.../deal/...">
     </div>
     <div class="field-row">
-      <label class="field-label" for="prazoContratacao">Prazo de contratação pretendido pelo cliente</label>
-      <select id="prazoContratacao">
+      <label class="field-label" for="prazoContratacao">Prazo de contratação pretendido pelo cliente <span style="color:var(--brick);">*</span></label>
+      <select id="prazoContratacao" required>
         <option value="">Selecione...</option>
         <option value="ate60">Até 60 dias</option>
         <option value="apos60">Após 60 dias</option>
       </select>
+      <div class="required-note">Obrigatório · critério eliminatório (prazo após 60 dias torna a oportunidade automaticamente Não)</div>
     </div>
   </div>
 
@@ -766,6 +766,7 @@ function recalc(){
   const globalMotivos = [];
 
   const prazo = document.getElementById('prazoContratacao').value;
+  const prazoAnswered = prazo !== '';
   if(prazo === 'apos60'){
     globalMotivos.push('Período de contratação pretendido após 60 dias');
   }
@@ -802,10 +803,10 @@ function recalc(){
     productResults.push({key, label:def.label, nota, complete, motivos: allMotivos, status});
   });
 
-  renderResults(globalMotivos, productResults, hasBase, crossSellSelected);
+  renderResults(globalMotivos, productResults, hasBase, crossSellSelected, prazoAnswered);
 }
 
-function renderResults(globalMotivos, productResults, hasBase, crossSellSelected){
+function renderResults(globalMotivos, productResults, hasBase, crossSellSelected, prazoAnswered){
   const resultsSection = document.getElementById('results-section');
   const resultsBody = document.getElementById('resultsBody');
   const overallPreview = document.getElementById('overallPreview');
@@ -821,11 +822,18 @@ function renderResults(globalMotivos, productResults, hasBase, crossSellSelected
 
   resultsSection.style.display = 'block';
 
-  const allComplete = productResults.length > 0 && productResults.every(p => p.complete || p.status === 'nao');
+  const productsComplete = productResults.length > 0 && productResults.every(p => p.complete || p.status === 'nao');
+  const allComplete = productsComplete && prazoAnswered;
   const anyNao = globalMotivos.length > 0 || productResults.some(p => p.status === 'nao');
   const overallSim = allComplete && !anyNao && productResults.length > 0;
 
   let html = '';
+
+  if(!prazoAnswered){
+    html += `<div class="elim-note" style="margin-bottom:18px;">
+      <strong>Prazo de contratação pendente:</strong> selecione o prazo de contratação pretendido pelo cliente — esse critério é obrigatório e determinante para o veredito final.
+    </div>`;
+  }
 
   if(globalMotivos.length > 0){
     html += `<div class="elim-note" style="background:var(--brick-soft); border-left-color:var(--brick); margin-bottom:18px;">
@@ -850,18 +858,30 @@ function renderResults(globalMotivos, productResults, hasBase, crossSellSelected
     `;
   });
 
+  let verdictText;
+  if(!prazoAnswered){
+    verdictText = 'Selecione o prazo de contratação';
+  } else if(!allComplete && !anyNao){
+    verdictText = 'Aguardando respostas...';
+  } else {
+    verdictText = overallSim ? 'Oportunidade Sim' : 'Oportunidade Não';
+  }
+
   html += `
     <div class="verdict-card">
       <div class="verdict-label">Veredito Geral do Negócio</div>
-      <div class="verdict-value ${anyInterestSelected ? (overallSim ? 'sim' : 'nao') : ''}">
-        ${!allComplete && !anyNao ? 'Aguardando respostas...' : (overallSim ? 'Oportunidade Sim' : 'Oportunidade Não')}
+      <div class="verdict-value ${(prazoAnswered && (allComplete || anyNao)) ? (overallSim ? 'sim' : 'nao') : ''}">
+        ${verdictText}
       </div>
     </div>
   `;
 
   resultsBody.innerHTML = html;
 
-  if(!allComplete && !anyNao){
+  if(!prazoAnswered){
+    overallPreview.innerHTML = '<strong style="color:var(--brick);">Selecione o prazo de contratação</strong> para calcular a nota final';
+    pdfBtn.disabled = true;
+  } else if(!allComplete && !anyNao){
     overallPreview.innerHTML = 'Preencha todos os critérios para calcular a nota final';
     pdfBtn.disabled = true;
   } else {
@@ -977,17 +997,19 @@ document.getElementById('pdfBtn').addEventListener('click', ()=>{
 
   const pdfContent = document.getElementById('pdf-content');
   pdfContent.style.display = 'block';
-  pdfContent.style.transform = 'none';
-  pdfContent.style.height = 'auto';
+  pdfContent.style.zoom = 1;
 
-  // Force a layout flush, then scale the whole block down (if needed)
-  // so everything fits on a single A4 page regardless of how many
+  // `transform: scale()` does NOT affect print pagination in Chrome/Edge (it's
+  // paint-only), so instead we use `zoom`, which actually changes the layout
+  // size considered when the browser decides page breaks. This is what lets
+  // the whole summary fit on a single A4 page regardless of how many
   // products were selected.
   const A4_USABLE_HEIGHT_PX = 96 * (277 / 25.4); // 297mm page - 2x10mm margins, at CSS's fixed 96px/in
   const naturalHeight = pdfContent.scrollHeight;
-  const scale = naturalHeight > A4_USABLE_HEIGHT_PX ? (A4_USABLE_HEIGHT_PX / naturalHeight) : 1;
-  pdfContent.style.transform = `scale(${scale})`;
-  pdfContent.style.height = (naturalHeight * scale) + 'px';
+  if(naturalHeight > A4_USABLE_HEIGHT_PX){
+    const scale = (A4_USABLE_HEIGHT_PX / naturalHeight) * 0.97; // small safety margin
+    pdfContent.style.zoom = scale;
+  }
 
   window.print();
 });
