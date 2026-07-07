@@ -444,6 +444,7 @@
     <h1 style="font-size:22px; margin-bottom:2px;">Qualificação de Oportunidade</h1>
     <div id="pdfDate" style="font-size:12px; color:#7A7161; margin-bottom:18px;"></div>
     <div style="font-size:13px; margin-bottom:14px;"><strong>Link do Negócio:</strong> <span id="pdfLink"></span></div>
+    <div style="font-size:13px; margin-bottom:14px;"><strong>Interesse do lead:</strong> <span id="pdfInteresses"></span></div>
     <div style="font-size:13px; margin-bottom:18px;"><strong>Prazo de contratação:</strong> <span id="pdfPrazo"></span></div>
     <div style="border:2px solid #1C2B39; border-radius:8px; padding:16px; text-align:center; margin-bottom:22px;">
       <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#7A7161;">Veredito Geral</div>
@@ -868,41 +869,106 @@ function renderResults(globalMotivos, productResults, hasBase, crossSellSelected
 }
 
 // ---------- PDF GENERATION ----------
+const ANSWER_LABELS = {nao:'Não', parcial:'Parcialmente', sim:'Sim'};
+const INTEREST_LABELS = {
+  crm:'CRM', erp:'ERP', assistenteDigital:'Assistente Digital',
+  owli:'Owli', owliVistoria:'Owli Vistoria', hub:'HUB', seguroIncendio:'Seguro Incêndio'
+};
+
 document.getElementById('pdfBtn').addEventListener('click', ()=>{
   const result = window._lastResult;
   if(!result) return;
 
-  const link = document.getElementById('hubspotLink').value || 'Não informado';
+  const linkValue = document.getElementById('hubspotLink').value.trim();
   const prazoSel = document.getElementById('prazoContratacao');
   const prazoText = prazoSel.options[prazoSel.selectedIndex] ? prazoSel.options[prazoSel.selectedIndex].text : 'Não informado';
 
   document.getElementById('pdfDate').textContent = 'Gerado em ' + new Date().toLocaleString('pt-BR');
-  document.getElementById('pdfLink').textContent = link;
+
+  const pdfLinkEl = document.getElementById('pdfLink');
+  if(linkValue && /^https?:\/\//i.test(linkValue)){
+    pdfLinkEl.innerHTML = `<a href="${linkValue}" style="color:#2F3EF6;">${linkValue}</a>`;
+  } else {
+    pdfLinkEl.textContent = linkValue || 'Não informado';
+  }
+
   document.getElementById('pdfPrazo').textContent = prazoText;
+
+  const interestNames = Object.keys(state.interests)
+    .filter(k => state.interests[k])
+    .map(k => INTEREST_LABELS[k]);
+  document.getElementById('pdfInteresses').textContent = interestNames.join(', ') || 'Nenhum';
 
   const verdictEl = document.getElementById('pdfVerdict');
   verdictEl.textContent = result.overallSim ? 'OPORTUNIDADE SIM' : 'OPORTUNIDADE NÃO';
-  verdictEl.style.color = result.overallSim ? '#1E7A5F' : '#B24A2E';
+  verdictEl.style.color = result.overallSim ? '#12946F' : '#D6483F';
 
   let listHtml = '';
   if(result.globalMotivos.length > 0){
-    listHtml += `<div style="margin-bottom:16px; padding:10px 14px; background:#F4E2DA; border-left:3px solid #B24A2E; font-size:13px;">
-      <strong>Eliminação geral:</strong> ${result.globalMotivos.join('; ')}
+    listHtml += `<div style="margin-bottom:16px; padding:10px 14px; background:#FBEAE8; border-left:3px solid #D6483F; font-size:13px;">
+      <strong>Eliminação geral do negócio:</strong> ${result.globalMotivos.join('; ')}
     </div>`;
   }
+
   result.productResults.forEach(p=>{
-    const color = p.status === 'sim' ? '#1E7A5F' : '#B24A2E';
+    const def = PRODUCT_DEFS[p.key];
+    const color = p.status === 'sim' ? '#12946F' : '#D6483F';
+
+    let criteriaRows = '';
+    def.items.forEach(item=>{
+      const ans = state.answers[p.key] ? state.answers[p.key][item.id] : null;
+      const ansLabel = ans ? ANSWER_LABELS[ans] : 'Não respondido';
+      const weight = ans ? item.w[ans] : null;
+      criteriaRows += `
+        <tr>
+          <td style="padding:5px 8px 5px 0; font-size:11.5px; color:#232B3A;">${item.text}</td>
+          <td style="padding:5px 8px; font-size:11.5px; font-weight:bold; white-space:nowrap;">${ansLabel}</td>
+          <td style="padding:5px 0; font-size:11.5px; color:#6B7280; text-align:right; white-space:nowrap;">${weight !== null ? weight : '—'}</td>
+        </tr>`;
+    });
+
+    def.extra.forEach(item=>{
+      const ans = state.extra[p.key] ? state.extra[p.key][item.id] : null;
+      const ansLabel = ans ? (ans === 'sim' ? 'Sim' : 'Não') : 'Não respondido';
+      criteriaRows += `
+        <tr>
+          <td style="padding:5px 8px 5px 0; font-size:11.5px; color:#232B3A;">${item.text} <span style="color:#6B7280;">(eliminatório)</span></td>
+          <td style="padding:5px 8px; font-size:11.5px; font-weight:bold; white-space:nowrap;">${ansLabel}</td>
+          <td style="padding:5px 0; font-size:11.5px; color:#6B7280; text-align:right;">—</td>
+        </tr>`;
+    });
+
+    const budget = state.budget[p.key];
+    let budgetRow = '';
+    if(budget && (budget.cliente !== null || budget.minimo !== null)){
+      budgetRow = `
+        <tr>
+          <td style="padding:5px 8px 5px 0; font-size:11.5px; color:#232B3A;">Orçamento (cliente / mínimo do produto)</td>
+          <td style="padding:5px 8px; font-size:11.5px; font-weight:bold; white-space:nowrap;" colspan="2">
+            R$ ${budget.cliente !== null ? budget.cliente.toFixed(2) : '—'} / R$ ${budget.minimo !== null ? budget.minimo.toFixed(2) : '—'}
+          </td>
+        </tr>`;
+    }
+
     listHtml += `
-      <div style="border:1px solid #E3DCCB; border-radius:8px; padding:14px 16px; margin-bottom:12px;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div style="border:1px solid #E3E7EF; border-radius:8px; padding:14px 16px; margin-bottom:14px; page-break-inside:avoid;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <strong style="font-size:14px;">${p.label}</strong>
           <span style="color:${color}; font-weight:bold; font-size:12px; text-transform:uppercase;">${p.status === 'sim' ? 'Oportunidade Sim' : 'Oportunidade Não'}</span>
         </div>
-        <div style="font-size:12px; color:#7A7161; margin-top:6px;">Nota final: ${p.nota !== null ? p.nota.toFixed(2).replace('.', ',') : '—'}</div>
-        ${p.motivos.length > 0 ? `<div style="font-size:12px; margin-top:6px;">Motivo(s): ${p.motivos.join('; ')}</div>` : ''}
+        <div style="font-size:12px; color:#6B7280; margin-bottom:8px;">Nota final: <strong style="color:#232B3A;">${p.nota !== null ? p.nota.toFixed(2).replace('.', ',') : '—'}</strong></div>
+        <table style="width:100%; border-collapse:collapse; margin-bottom:${p.motivos.length > 0 ? '8px' : '0'};">
+          <tbody>${criteriaRows}${budgetRow}</tbody>
+        </table>
+        ${p.motivos.length > 0 ? `<div style="font-size:12px; padding-top:8px; border-top:1px solid #E3E7EF;"><strong>Motivo(s) da eliminação:</strong> ${p.motivos.join('; ')}</div>` : ''}
       </div>
     `;
   });
+
+  if(result.productResults.length === 0){
+    listHtml += `<div style="font-size:13px; color:#6B7280;">Nenhum produto com critérios pontuados foi avaliado neste negócio.</div>`;
+  }
+
   document.getElementById('pdfProductsList').innerHTML = listHtml;
 
   const pdfContent = document.getElementById('pdf-content');
