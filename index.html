@@ -13,10 +13,10 @@
     --brand-soft:#EAEBFE;
     --ink:#232B3A;
     --ink-soft:#4B5568;
-    --paper:#F5F6FA;
+    --paper:#EEF0FC;
     --card:#FFFFFF;
-    --line:#EBEDF2;
-    --line-strong:#DDE1E9;
+    --line:#E7E9F5;
+    --line-strong:#D6DAF0;
     --brick:#D6483F;
     --brick-soft:#FBEAE8;
     --emerald:#12946F;
@@ -25,11 +25,16 @@
     --gold-soft:#FBF0D9;
     --muted:#6B7280;
     --radius:16px;
+    --shadow-card:0 10px 24px -12px rgba(47,62,246,0.16), 0 2px 6px rgba(35,43,58,0.05);
+    --shadow-card-hover:0 14px 32px -12px rgba(47,62,246,0.22), 0 3px 8px rgba(35,43,58,0.06);
   }
   *{box-sizing:border-box;}
   body{
     margin:0;
-    background:var(--paper);
+    background:
+      radial-gradient(ellipse 1100px 480px at 50% -80px, rgba(47,62,246,0.14), rgba(47,62,246,0) 70%),
+      var(--paper);
+    background-attachment:fixed;
     color:var(--ink);
     font-family:'Inter',sans-serif;
     line-height:1.45;
@@ -49,6 +54,14 @@
     position:sticky;
     top:0;
     z-index:40;
+    box-shadow:0 1px 0 rgba(47,62,246,0.05), 0 4px 20px -8px rgba(47,62,246,0.12);
+  }
+  .topbar::before{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0;
+    height:3px;
+    background:linear-gradient(90deg, var(--brand-dark), var(--brand) 55%, #6E7BFA);
   }
   .topbar-inner{
     max-width:920px;
@@ -99,7 +112,7 @@
     border-radius:var(--radius);
     padding:26px 28px;
     margin-bottom:22px;
-    box-shadow:0 1px 3px rgba(28,43,57,0.03), 0 1px 1px rgba(28,43,57,0.02);
+    box-shadow:var(--shadow-card);
   }
   .card-head-row{
     display:flex;
@@ -216,8 +229,9 @@
     border:1px solid var(--line);
     border-radius:var(--radius);
     background:var(--card);
-    margin-bottom:20px;
+    margin-bottom:22px;
     overflow:hidden;
+    box-shadow:var(--shadow-card);
   }
   .product-head{
     display:flex;
@@ -225,7 +239,7 @@
     align-items:center;
     padding:18px 24px;
     border-bottom:1px solid var(--line);
-    background:#F7F8FB;
+    background:linear-gradient(180deg, #F3F5FE 0%, #F8F9FD 100%);
   }
   .product-head h3{ font-size:18px; font-weight:600; }
   .product-body{ padding:22px 24px; }
@@ -331,7 +345,7 @@
     text-align:center;
     padding:32px 24px;
     border-radius:12px;
-    background:#F4F6FA;
+    background:var(--brand-soft);
     margin-top:6px;
   }
   .verdict-card.sim{ background:var(--emerald-soft); }
@@ -380,7 +394,7 @@
     justify-content:center;
     gap:12px;
     z-index:50;
-    box-shadow:0 -4px 16px rgba(28,43,57,0.06);
+    box-shadow:0 -8px 24px -6px rgba(47,62,246,0.14);
   }
   .action-bar-inner{ max-width:920px; width:100%; display:flex; justify-content:space-between; align-items:center; gap:16px; }
   .overall-preview{ display:flex; align-items:center; gap:10px; font-size:14px; color:var(--ink-soft); }
@@ -392,12 +406,12 @@
     font-weight:700;
     font-size:14px;
     cursor:pointer;
-    transition:transform .1s, opacity .15s;
+    transition:transform .1s, opacity .15s, box-shadow .15s;
   }
   .btn:active{ transform:scale(0.98); }
-  .btn-primary{ background:var(--brand); color:#FFFFFF; }
-  .btn-primary:disabled{ opacity:0.4; cursor:not-allowed; }
-  .btn-primary:not(:disabled):hover{ background:var(--brand-dark); }
+  .btn-primary{ background:var(--brand); color:#FFFFFF; box-shadow:0 6px 16px -4px rgba(47,62,246,0.45); }
+  .btn-primary:disabled{ opacity:0.4; cursor:not-allowed; box-shadow:none; }
+  .btn-primary:not(:disabled):hover{ background:var(--brand-dark); box-shadow:0 8px 20px -4px rgba(47,62,246,0.55); }
 
   .required-note{ font-size:12.5px; color:var(--muted); margin-top:2px;}
 
@@ -657,7 +671,7 @@ function buildProductCard(key, label, items, extraItems, hasBudget){
     <h3>${label}</h3>
     <div class="score-ring">
       <svg width="50" height="50" viewBox="0 0 50 50">
-        <circle cx="25" cy="25" r="20" fill="none" stroke="#EBEDF2" stroke-width="5"/>
+        <circle cx="25" cy="25" r="20" fill="none" stroke="#E4E7F7" stroke-width="5"/>
         <circle class="ring-arc" id="ringArc-${key}" cx="25" cy="25" r="20" fill="none" stroke="#C3C9D6" stroke-width="5" stroke-linecap="round" stroke-dasharray="0 126"/>
       </svg>
       <span class="score-ring-value pending" id="gaugeVal-${key}">--</span>
