@@ -547,11 +547,12 @@ function assistenteDigitalItems(){
 const INTEREST_OPTIONS = [
   {id:'crm', name:'CRM', crossSell:false},
   {id:'erp', name:'ERP', crossSell:false},
-  {id:'assistenteDigital', name:'Assistente Digital', crossSell:true},
-  {id:'owli', name:'Owli', crossSell:true},
-  {id:'owliVistoria', name:'Owli Vistoria', crossSell:true},
-  {id:'hub', name:'HUB', crossSell:true},
-  {id:'seguroIncendio', name:'Seguro Incêndio', crossSell:true},
+  {id:'assistenteDigitalCrm', name:'Assistente Digital CRM', crossSell:true, tag:'requer CRM'},
+  {id:'assistenteDigitalErp', name:'Assistente Digital ERP', crossSell:true, tag:'requer ERP'},
+  {id:'owli', name:'Owli', crossSell:true, tag:'requer CRM ou ERP'},
+  {id:'owliVistoria', name:'Owli Vistoria', crossSell:true, tag:'requer CRM ou ERP'},
+  {id:'hub', name:'HUB', crossSell:true, tag:'requer CRM ou ERP'},
+  {id:'seguroIncendio', name:'Seguro Incêndio', crossSell:true, tag:'requer CRM ou ERP'},
 ];
 
 // ---------- STATE ----------
@@ -577,7 +578,7 @@ INTEREST_OPTIONS.forEach(opt=>{
     </span>
     <span>
       <span class="name">${opt.name}</span>
-      ${opt.crossSell ? '<span class="tag">requer CRM ou ERP</span>' : ''}
+      ${opt.crossSell ? `<span class="tag">${opt.tag}</span>` : ''}
     </span>
   `;
   const input = chip.querySelector('input');
@@ -607,15 +608,18 @@ function renderDynamicProducts(){
   if(state.interests.erp){
     dynamicProducts.appendChild(buildProductCard('erp', 'ERP', ERP_ITEMS, [], true));
   }
-  if(state.interests.assistenteDigital){
+  if(state.interests.assistenteDigitalCrm){
     if(state.interests.crm){
-      dynamicProducts.appendChild(buildProductCard('assistenteDigitalCrm', 'Assistente Digital (base CRM)', assistenteDigitalItems(), [], true));
+      dynamicProducts.appendChild(buildProductCard('assistenteDigitalCrm', 'Assistente Digital CRM', assistenteDigitalItems(), [], true));
+    } else {
+      dynamicProducts.appendChild(buildCrossSellWarningCard('Assistente Digital CRM', 'CRM'));
     }
+  }
+  if(state.interests.assistenteDigitalErp){
     if(state.interests.erp){
-      dynamicProducts.appendChild(buildProductCard('assistenteDigitalErp', 'Assistente Digital (base ERP)', assistenteDigitalItems(), [], true));
-    }
-    if(!hasBase){
-      dynamicProducts.appendChild(buildCrossSellWarningCard('Assistente Digital'));
+      dynamicProducts.appendChild(buildProductCard('assistenteDigitalErp', 'Assistente Digital ERP', assistenteDigitalItems(), [], true));
+    } else {
+      dynamicProducts.appendChild(buildCrossSellWarningCard('Assistente Digital ERP', 'ERP'));
     }
   }
   ['owli','owliVistoria','hub','seguroIncendio'].forEach(key=>{
@@ -626,15 +630,15 @@ function renderDynamicProducts(){
   });
 }
 
-function buildCrossSellWarningCard(name){
+function buildCrossSellWarningCard(name, specificBase){
   const div = document.createElement('div');
   div.className = 'card';
+  const message = specificBase
+    ? `<strong>${name}</strong> é um complemento do <strong>${specificBase}</strong> e não pode ser vendido sozinho — marque também o interesse em <strong>${specificBase}</strong> para avaliar esse produto. Sem nenhum produto base (CRM ou ERP) na negociação, esse interesse torna a oportunidade <strong>NÃO</strong>.`
+    : `<strong>${name}</strong> é um produto de cross-sell e não pode ser vendido sem o produto base (CRM ou ERP). Essa venda deve ocorrer pelo VC, não pelo Closer comercial. Esse interesse, sozinho, torna a oportunidade <strong>NÃO</strong>.`;
   div.innerHTML = `
     <h2 style="font-size:16px;">${name}</h2>
-    <div class="cross-warning">
-      <strong>${name}</strong> é um produto de cross-sell e não pode ser vendido sem o produto base (CRM ou ERP).
-      Essa venda deve ocorrer pelo VC, não pelo Closer comercial. Esse interesse, sozinho, torna a oportunidade <strong>NÃO</strong>.
-    </div>
+    <div class="cross-warning">${message}</div>
   `;
   return div;
 }
@@ -828,8 +832,8 @@ function updateGauge(key, nota){
 const PRODUCT_DEFS = {
   crm: {label:'CRM', items:CRM_ITEMS, extra:CRM_EXTRA, budgetLabel:'CRM'},
   erp: {label:'ERP', items:ERP_ITEMS, extra:[], budgetLabel:'ERP'},
-  assistenteDigitalCrm: {label:'Assistente Digital (base CRM)', items:assistenteDigitalItems(), extra:[], budgetLabel:'Assistente Digital'},
-  assistenteDigitalErp: {label:'Assistente Digital (base ERP)', items:assistenteDigitalItems(), extra:[], budgetLabel:'Assistente Digital'},
+  assistenteDigitalCrm: {label:'Assistente Digital CRM', items:assistenteDigitalItems(), extra:[], budgetLabel:'Assistente Digital CRM'},
+  assistenteDigitalErp: {label:'Assistente Digital ERP', items:assistenteDigitalItems(), extra:[], budgetLabel:'Assistente Digital ERP'},
 };
 
 function recalc(){
@@ -842,7 +846,7 @@ function recalc(){
     globalMotivos.push('Período de contratação pretendido após 60 dias');
   }
 
-  const crossSellSelected = ['assistenteDigital','owli','owliVistoria','hub','seguroIncendio']
+  const crossSellSelected = ['assistenteDigitalCrm','assistenteDigitalErp','owli','owliVistoria','hub','seguroIncendio']
     .filter(k => state.interests[k]);
   if(crossSellSelected.length > 0 && !hasBase){
     globalMotivos.push('Interesse apenas em produto(s) de cross-sell sem CRM ou ERP como base');
@@ -852,8 +856,8 @@ function recalc(){
   ['crm','erp','assistenteDigitalCrm','assistenteDigitalErp'].forEach(key=>{
     const active = (key==='crm' && state.interests.crm) ||
                    (key==='erp' && state.interests.erp) ||
-                   (key==='assistenteDigitalCrm' && state.interests.assistenteDigital && state.interests.crm) ||
-                   (key==='assistenteDigitalErp' && state.interests.assistenteDigital && state.interests.erp);
+                   (key==='assistenteDigitalCrm' && state.interests.assistenteDigitalCrm && state.interests.crm) ||
+                   (key==='assistenteDigitalErp' && state.interests.assistenteDigitalErp && state.interests.erp);
     if(!active) return;
 
     const def = PRODUCT_DEFS[key];
@@ -987,7 +991,7 @@ function renderResults(globalMotivos, productResults, hasBase, crossSellSelected
 // ---------- PDF GENERATION ----------
 const ANSWER_LABELS = {nao:'Não', parcial:'Parcialmente', sim:'Sim'};
 const INTEREST_LABELS = {
-  crm:'CRM', erp:'ERP', assistenteDigital:'Assistente Digital',
+  crm:'CRM', erp:'ERP', assistenteDigitalCrm:'Assistente Digital CRM', assistenteDigitalErp:'Assistente Digital ERP',
   owli:'Owli', owliVistoria:'Owli Vistoria', hub:'HUB', seguroIncendio:'Seguro Incêndio'
 };
 
