@@ -13,9 +13,10 @@
     --brand-soft:#EAEBFE;
     --ink:#232B3A;
     --ink-soft:#4B5568;
-    --paper:#F4F6FA;
+    --paper:#F5F6FA;
     --card:#FFFFFF;
-    --line:#E3E7EF;
+    --line:#EBEDF2;
+    --line-strong:#DDE1E9;
     --brick:#D6483F;
     --brick-soft:#FBEAE8;
     --emerald:#12946F;
@@ -23,7 +24,7 @@
     --gold:#DB9A2E;
     --gold-soft:#FBF0D9;
     --muted:#6B7280;
-    --radius:14px;
+    --radius:16px;
   }
   *{box-sizing:border-box;}
   body{
@@ -96,9 +97,28 @@
     background:var(--card);
     border:1px solid var(--line);
     border-radius:var(--radius);
-    padding:24px 26px;
-    margin-bottom:20px;
-    box-shadow:0 1px 2px rgba(28,43,57,0.04);
+    padding:26px 28px;
+    margin-bottom:22px;
+    box-shadow:0 1px 3px rgba(28,43,57,0.03), 0 1px 1px rgba(28,43,57,0.02);
+  }
+  .card-head-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:4px;
+  }
+  .card-index{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:24px; height:24px;
+    flex-shrink:0;
+    border-radius:7px;
+    background:#F4F6FA;
+    border:1px solid var(--line);
+    font-family:'Roboto Mono',monospace;
+    font-size:11px;
+    color:var(--muted);
   }
   .card h2{
     font-size:19px;
@@ -108,7 +128,8 @@
   .card .card-sub{
     font-size:13px;
     color:var(--muted);
-    margin-bottom:18px;
+    margin-bottom:20px;
+    margin-left:36px;
   }
 
   label.field-label{
@@ -154,13 +175,32 @@
     cursor:pointer;
     display:flex;
     align-items:center;
-    gap:10px;
+    gap:11px;
     background:#FAFBFD;
     transition:border-color .15s, background .15s;
   }
-  .interest-chip:hover{ border-color:#C3C9D6; }
-  .interest-chip input{ accent-color:var(--brand); width:16px; height:16px; flex-shrink:0; }
+  .interest-chip:hover{ border-color:var(--line-strong); }
+  .interest-chip input{ position:absolute; opacity:0; width:0; height:0; }
+  .check-indicator{
+    width:17px; height:17px;
+    flex-shrink:0;
+    border-radius:5px;
+    border:1.5px solid var(--line-strong);
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:background .15s, border-color .15s;
+  }
+  .check-indicator svg{
+    width:10px; height:10px;
+    opacity:0;
+    transform:scale(0.6);
+    transition:opacity .12s, transform .12s;
+  }
   .interest-chip.checked{ border-color:var(--brand); background:var(--brand-soft); }
+  .interest-chip.checked .check-indicator{ background:var(--brand); border-color:var(--brand); }
+  .interest-chip.checked .check-indicator svg{ opacity:1; transform:scale(1); }
   .interest-chip .name{ font-size:14px; font-weight:600; }
   .interest-chip .tag{
     font-size:10.5px;
@@ -190,58 +230,55 @@
   .product-head h3{ font-size:18px; font-weight:600; }
   .product-body{ padding:22px 24px; }
 
-  .gauge-wrap{ display:flex; align-items:center; gap:14px; min-width:210px; }
-  .gauge-track{
-    position:relative;
-    width:150px; height:8px;
-    border-radius:5px;
-    background:linear-gradient(to right,
-      var(--brick) 0%, var(--brick) 49%, var(--emerald) 51%, var(--emerald) 100%);
-    opacity:0.35;
+  .score-ring{ position:relative; width:50px; height:50px; flex-shrink:0; }
+  .score-ring svg{ position:absolute; top:0; left:0; transform:rotate(-90deg); }
+  .score-ring svg .ring-arc{ transition:stroke-dasharray .3s ease, stroke .3s ease; }
+  .score-ring-value{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Roboto Mono',monospace;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--ink);
   }
-  .gauge-fill-marker{
-    position:absolute; top:-4px;
-    width:3px; height:16px;
-    background:var(--ink);
-    border-radius:2px;
-    transform:translateX(-50%);
-    transition:left .25s ease;
-  }
-  .gauge-threshold{
-    position:absolute; top:-2px; left:50%;
-    width:1px; height:12px;
-    background:rgba(28,43,57,0.35);
-  }
-  .gauge-value{ font-family:'Roboto Mono',monospace; font-size:20px; font-weight:500; min-width:52px; text-align:right; }
-  .gauge-value.pending{ color:var(--muted); font-size:14px; }
+  .score-ring-value.pending{ color:var(--muted); font-size:11px; font-weight:500; }
 
   .criteria-item{
     display:flex;
     justify-content:space-between;
     align-items:center;
     gap:16px;
-    padding:13px 0;
-    border-bottom:1px dashed var(--line);
+    padding:14px 0;
+    border-bottom:1px solid var(--line);
   }
   .criteria-item:last-of-type{ border-bottom:none; }
   .criteria-text{ font-size:14.5px; color:var(--ink); max-width:56%; }
-  .pill-group{ display:flex; gap:6px; flex-shrink:0; }
-  .pill{
-    border:1px solid var(--line);
+  .segmented{
+    display:flex;
+    flex-shrink:0;
+    border:1px solid var(--line-strong);
+    border-radius:9px;
+    overflow:hidden;
     background:#FAFBFD;
-    padding:8px 14px;
-    border-radius:20px;
+  }
+  .segment{
+    border:none;
+    border-right:1px solid var(--line-strong);
+    background:transparent;
+    padding:8px 15px;
+    font-family:'Inter',sans-serif;
     font-size:13px;
     font-weight:600;
     cursor:pointer;
-    color:var(--muted);
-    transition:all .15s;
+    color:var(--ink-soft);
+    transition:background .15s, color .15s;
     white-space:nowrap;
   }
-  .pill:hover{ border-color:#C3C9D6; }
-  .pill.active-nao{ background:var(--brick); border-color:var(--brick); color:#fff; }
-  .pill.active-parcial{ background:var(--gold); border-color:var(--gold); color:#fff; }
-  .pill.active-sim{ background:var(--emerald); border-color:var(--emerald); color:#fff; }
+  .segment:last-child{ border-right:none; }
+  .segment:hover{ background:#F0F2F7; }
+  .segment.active-nao{ background:var(--brick); color:#fff; }
+  .segment.active-parcial{ background:var(--gold); color:#fff; }
+  .segment.active-sim{ background:var(--emerald); color:#fff; }
 
   .weight-hint{ font-family:'Roboto Mono',monospace; font-size:11px; color:var(--muted); margin-top:2px; }
 
@@ -292,8 +329,13 @@
   #results-section{ display:none; }
   .verdict-card{
     text-align:center;
-    padding:34px 24px;
+    padding:32px 24px;
+    border-radius:12px;
+    background:#F4F6FA;
+    margin-top:6px;
   }
+  .verdict-card.sim{ background:var(--emerald-soft); }
+  .verdict-card.nao{ background:var(--brick-soft); }
   .verdict-card .verdict-label{
     font-family:'Roboto Mono',monospace;
     font-size:11px;
@@ -304,8 +346,11 @@
   }
   .verdict-card .verdict-value{
     font-family:'Plus Jakarta Sans',sans-serif;
-    font-size:44px;
+    font-size:38px;
     font-weight:700;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
   }
   .verdict-value.sim{ color:var(--emerald); }
   .verdict-value.nao{ color:var(--brick); }
@@ -403,7 +448,10 @@
 <div class="wrap">
 
   <div class="card">
-    <h2>Negócio</h2>
+    <div class="card-head-row">
+      <span class="card-index">01</span>
+      <h2>Negócio</h2>
+    </div>
     <div class="card-sub">Informações gerais do lead / negócio</div>
     <div class="field-row">
       <label class="field-label" for="hubspotLink">Link do Negócio no HubSpot</label>
@@ -421,7 +469,10 @@
   </div>
 
   <div class="card">
-    <h2>Interesse do lead</h2>
+    <div class="card-head-row">
+      <span class="card-index">02</span>
+      <h2>Interesse do lead</h2>
+    </div>
     <div class="card-sub">Selecione todos os produtos que o lead demonstrou interesse na reunião</div>
     <div class="interest-grid" id="interestGrid"></div>
   </div>
@@ -429,7 +480,10 @@
   <div id="dynamicProducts"></div>
 
   <div class="card" id="results-section">
-    <h2 style="margin-bottom:18px;">Resultado</h2>
+    <div class="card-head-row" style="margin-bottom:18px;">
+      <span class="card-index">✓</span>
+      <h2>Resultado</h2>
+    </div>
     <div id="resultsBody"></div>
   </div>
 
@@ -518,6 +572,9 @@ INTEREST_OPTIONS.forEach(opt=>{
   chip.className = 'interest-chip' + (opt.crossSell ? ' crosssell' : '');
   chip.innerHTML = `
     <input type="checkbox" data-id="${opt.id}">
+    <span class="check-indicator">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </span>
     <span>
       <span class="name">${opt.name}</span>
       ${opt.crossSell ? '<span class="tag">requer CRM ou ERP</span>' : ''}
@@ -594,12 +651,12 @@ function buildProductCard(key, label, items, extraItems, hasBudget){
   head.className = 'product-head';
   head.innerHTML = `
     <h3>${label}</h3>
-    <div class="gauge-wrap">
-      <div class="gauge-track">
-        <div class="gauge-threshold"></div>
-        <div class="gauge-fill-marker" id="marker-${key}" style="left:100%"></div>
-      </div>
-      <div class="gauge-value pending" id="gaugeVal-${key}">--</div>
+    <div class="score-ring">
+      <svg width="50" height="50" viewBox="0 0 50 50">
+        <circle cx="25" cy="25" r="20" fill="none" stroke="#EBEDF2" stroke-width="5"/>
+        <circle class="ring-arc" id="ringArc-${key}" cx="25" cy="25" r="20" fill="none" stroke="#C3C9D6" stroke-width="5" stroke-linecap="round" stroke-dasharray="0 126"/>
+      </svg>
+      <span class="score-ring-value pending" id="gaugeVal-${key}">--</span>
     </div>
   `;
   card.appendChild(head);
@@ -615,18 +672,18 @@ function buildProductCard(key, label, items, extraItems, hasBudget){
         <div class="criteria-text">${item.text}</div>
         <div class="weight-hint">Não ${item.w.nao} · Parcialmente ${item.w.parcial} · Sim ${item.w.sim}</div>
       </div>
-      <div class="pill-group">
-        <button type="button" class="pill" data-val="nao">Não</button>
-        <button type="button" class="pill" data-val="parcial">Parcialmente</button>
-        <button type="button" class="pill" data-val="sim">Sim</button>
+      <div class="segmented">
+        <button type="button" class="segment" data-val="nao">Não</button>
+        <button type="button" class="segment" data-val="parcial">Parcialmente</button>
+        <button type="button" class="segment" data-val="sim">Sim</button>
       </div>
     `;
-    const pills = row.querySelectorAll('.pill');
+    const pills = row.querySelectorAll('.segment');
     pills.forEach(p=>{
       p.addEventListener('click', ()=>{
         state.answers[key][item.id] = p.dataset.val;
-        pills.forEach(x=>x.className='pill');
-        p.classList.add('pill','active-'+p.dataset.val);
+        pills.forEach(x=>x.className='segment');
+        p.classList.add('segment','active-'+p.dataset.val);
         recalc();
       });
     });
@@ -641,17 +698,17 @@ function buildProductCard(key, label, items, extraItems, hasBudget){
         <div class="criteria-text">${item.text} <span style="color:var(--brick);">*</span></div>
         <div class="weight-hint">Obrigatório · critério de eliminação (não entra na nota)</div>
       </div>
-      <div class="pill-group">
-        <button type="button" class="pill" data-val="nao">Não</button>
-        <button type="button" class="pill" data-val="sim">Sim</button>
+      <div class="segmented">
+        <button type="button" class="segment" data-val="nao">Não</button>
+        <button type="button" class="segment" data-val="sim">Sim</button>
       </div>
     `;
-    const pills = row.querySelectorAll('.pill');
+    const pills = row.querySelectorAll('.segment');
     pills.forEach(p=>{
       p.addEventListener('click', ()=>{
         state.extra[key][item.id] = p.dataset.val;
-        pills.forEach(x=>x.className='pill');
-        p.classList.add('pill','active-'+p.dataset.val);
+        pills.forEach(x=>x.className='segment');
+        p.classList.add('segment','active-'+p.dataset.val);
         recalc();
       });
     });
@@ -749,18 +806,22 @@ function checkBudget(key, label){
 }
 
 function updateGauge(key, nota){
-  const marker = document.getElementById('marker-'+key);
+  const arc = document.getElementById('ringArc-'+key);
   const val = document.getElementById('gaugeVal-'+key);
-  if(!marker || !val) return;
+  if(!arc || !val) return;
+  const circumference = 2 * Math.PI * 20; // r=20
   if(nota === null){
-    marker.style.left = '0%';
+    arc.setAttribute('stroke-dasharray', `0 ${circumference}`);
+    arc.setAttribute('stroke', '#C3C9D6');
     val.textContent = '--';
-    val.className = 'gauge-value pending';
+    val.className = 'score-ring-value pending';
   } else {
     const pct = Math.max(0, Math.min(100, (nota/5)*100));
-    marker.style.left = pct + '%';
+    const dash = (pct/100) * circumference;
+    arc.setAttribute('stroke-dasharray', `${dash} ${circumference}`);
+    arc.setAttribute('stroke', nota >= 2.5 ? '#12946F' : '#D6483F');
     val.textContent = nota.toFixed(2).replace('.', ',');
-    val.className = 'gauge-value';
+    val.className = 'score-ring-value';
   }
 }
 
@@ -885,19 +946,24 @@ function renderResults(globalMotivos, productResults, hasBase, crossSellSelected
   });
 
   let verdictText;
+  let verdictIcon = '';
+  const verdictReady = prazoAnswered && (allComplete || anyNao);
   if(!prazoAnswered){
     verdictText = 'Selecione o prazo de contratação';
   } else if(!allComplete && !anyNao){
     verdictText = 'Aguardando respostas...';
   } else {
     verdictText = overallSim ? 'Oportunidade Sim' : 'Oportunidade Não';
+    verdictIcon = overallSim
+      ? '<svg width="30" height="30" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" stroke="currentColor" stroke-width="1.6"/><path d="M7 12.5l3 3 7-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      : '<svg width="30" height="30" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" stroke="currentColor" stroke-width="1.6"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
   }
 
   html += `
-    <div class="verdict-card">
+    <div class="verdict-card ${verdictReady ? (overallSim ? 'sim' : 'nao') : ''}">
       <div class="verdict-label">Veredito Geral do Negócio</div>
-      <div class="verdict-value ${(prazoAnswered && (allComplete || anyNao)) ? (overallSim ? 'sim' : 'nao') : ''}">
-        ${verdictText}
+      <div class="verdict-value ${verdictReady ? (overallSim ? 'sim' : 'nao') : ''}">
+        ${verdictIcon}${verdictText}
       </div>
     </div>
   `;
