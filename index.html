@@ -737,7 +737,7 @@ function buildProductCard(key, label, items, extraItems, hasBudget){
     const box = document.createElement('div');
     box.className = 'budget-box';
     box.innerHTML = `
-      <label class="field-label">Orçamento (critério obrigatório e eliminatório por preço) <span style="color:var(--brick);">*</span></label>
+      <label class="field-label">Orçamento (critério eliminatório por preço, opcional)</label>
       <div class="two-col">
         <div>
           <label class="field-label" style="font-size:11px;">Valor que o cliente pode investir (R$)</label>
@@ -883,8 +883,7 @@ function recalc(){
     const allMotivos = motivos.concat(extraMotivos).concat(budgetMotivos);
 
     const extraComplete = isExtraComplete(key, def.extra);
-    const budgetFilled = isBudgetFilled(key);
-    const ready = complete && extraComplete && budgetFilled;
+    const ready = complete && extraComplete;
 
     let status;
     if(allMotivos.length > 0){
@@ -900,7 +899,6 @@ function recalc(){
       const missing = [];
       if(!complete) missing.push('critérios da nota');
       if(!extraComplete) missing.push('critério(s) eliminatório(s)');
-      if(!budgetFilled) missing.push('orçamento');
       pendingReason = 'Aguardando: ' + missing.join(', ');
     }
 
