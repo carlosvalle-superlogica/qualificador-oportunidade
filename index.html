@@ -737,7 +737,7 @@ function buildProductCard(key, label, items, extraItems, hasBudget){
     const box = document.createElement('div');
     box.className = 'budget-box';
     box.innerHTML = `
-      <label class="field-label">Orçamento (critério eliminatório por preço, opcional)</label>
+      <label class="field-label">Orçamento (informativo — não influencia o resultado)</label>
       <div class="two-col">
         <div>
           <label class="field-label" style="font-size:11px;">Valor que o cliente pode investir (R$)</label>
@@ -879,8 +879,7 @@ function recalc(){
     updateGauge(key, nota);
 
     const extraMotivos = checkExtra(key, def.extra);
-    const budgetMotivos = checkBudget(key, def.budgetLabel);
-    const allMotivos = motivos.concat(extraMotivos).concat(budgetMotivos);
+    const allMotivos = motivos.concat(extraMotivos);
 
     const extraComplete = isExtraComplete(key, def.extra);
     const ready = complete && extraComplete;
